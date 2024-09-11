@@ -5,12 +5,12 @@ LABEL maintainer="Debezium Community"
 #
 # Set the version, home directory, and MD5 hash.
 #
-ENV DEBEZIUM_VERSION=2.5.4.Final \
+ENV DEBEZIUM_VERSION=2.5.0.Final \
     SERVER_HOME=/debezium \
     MAVEN_REPO_CENTRAL="https://repo1.maven.org/maven2" \
     AWS_MSK_IAM_VERSION=1.1.6
 ENV SERVER_URL_PATH=io/debezium/debezium-server-dist/$DEBEZIUM_VERSION/debezium-server-dist-$DEBEZIUM_VERSION.tar.gz \
-    SERVER_MD5=d75ba8c21e1d14f320b79d92107278b0
+    SERVER_MD5=0293ac8e8547bd2a8c7d385ce759682a
 
 #
 # Create a directory for Debezium Server
@@ -42,6 +42,16 @@ COPY debezium-server-kafka-2.5.0.Final.jar /debezium/lib/
 # Download AWS IAM jar and put it in /debezium/lib
 #
 RUN curl -fSL -o "$SERVER_HOME/lib/aws-msk-iam-auth-all.jar" https://github.com/aws/aws-msk-iam-auth/releases/download/v$AWS_MSK_IAM_VERSION/aws-msk-iam-auth-$AWS_MSK_IAM_VERSION-all.jar
+
+#
+# Now install all the Amazon related certs for DocumentDB TLS
+# https://docs.aws.amazon.com/documentdb/latest/developerguide/connect_programmatically.html#w139aac29c11c13b5b9
+#
+COPY setup_certs.sh /app/setup_certs.sh
+RUN microdnf -y install curl openssl perl
+RUN chmod +x /app/setup_certs.sh
+RUN mkdir -p /tmp/certs
+RUN /app/setup_certs.sh
 
 #
 # Allow random UID to use Debezium Server
