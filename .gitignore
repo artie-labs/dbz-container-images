@@ -10,3 +10,5 @@
 .settings/
 .gradle/
 .DS_Store
+
+server/2.5-oracle/instantclient_23_6/
