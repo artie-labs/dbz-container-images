@@ -6,12 +6,12 @@ LABEL maintainer="Debezium Community"
 #
 # Set the version, home directory, and MD5 hash.
 #
-ENV DEBEZIUM_VERSION=2.7.2.Final \
+ENV DEBEZIUM_VERSION=2.7.4.Final \
     SERVER_HOME=/debezium \
     MAVEN_REPO_CENTRAL="https://repo1.maven.org/maven2" \
     AWS_MSK_IAM_VERSION=1.1.6
 ENV SERVER_URL_PATH=io/debezium/debezium-server-dist/$DEBEZIUM_VERSION/debezium-server-dist-$DEBEZIUM_VERSION.tar.gz \
-    SERVER_MD5=4e07624cf388cfc121477aa9a050595d
+    SERVER_MD5=ee41a08c0f1fdee842ebcd5741a14491
 
 #
 # Create a directory for Debezium Server
@@ -38,7 +38,7 @@ RUN echo "$SERVER_MD5 /tmp/debezium.tar.gz" | md5sum -c - &&\
     rm -f /tmp/debezium.tar.gz
 
 # Mount our Kafka jar to Debezium
-COPY debezium-server-kafka-2.7.2.Final.jar /debezium/lib/
+COPY debezium-server-kafka-2.7.4.Final.jar /debezium/lib/
 
 ## Oracle specific
 RUN mkdir -p /opt/oracle/instant_client
@@ -61,7 +61,7 @@ FROM --platform=linux/amd64 registry.access.redhat.com/ubi8/openjdk-11
 
 LABEL maintainer="Debezium Community"
 
-ENV DEBEZIUM_VERSION=2.7.2.Final \
+ENV DEBEZIUM_VERSION=2.7.4.Final \
     SERVER_HOME=/debezium \
     MAVEN_REPO_CENTRAL="https://repo1.maven.org/maven2"
 
