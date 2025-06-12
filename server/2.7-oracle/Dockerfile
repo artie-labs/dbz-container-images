@@ -1,16 +1,17 @@
 # Stage 1: Build stage
-FROM registry.access.redhat.com/ubi8/openjdk-11 AS builder
+FROM --platform=linux/amd64 registry.access.redhat.com/ubi8/openjdk-11 AS builder
 
 LABEL maintainer="Debezium Community"
 
 #
 # Set the version, home directory, and MD5 hash.
 #
-ENV DEBEZIUM_VERSION=2.7.4.Final \
+ENV DEBEZIUM_VERSION=2.7.2.Final \
     SERVER_HOME=/debezium \
-    MAVEN_REPO_CENTRAL="https://repo1.maven.org/maven2"
+    MAVEN_REPO_CENTRAL="https://repo1.maven.org/maven2" \
+    AWS_MSK_IAM_VERSION=1.1.6
 ENV SERVER_URL_PATH=io/debezium/debezium-server-dist/$DEBEZIUM_VERSION/debezium-server-dist-$DEBEZIUM_VERSION.tar.gz \
-    SERVER_MD5=ee41a08c0f1fdee842ebcd5741a14491
+    SERVER_MD5=4e07624cf388cfc121477aa9a050595d
 
 #
 # Create a directory for Debezium Server
@@ -36,8 +37,8 @@ RUN echo "$SERVER_MD5 /tmp/debezium.tar.gz" | md5sum -c - &&\
     tar xzf /tmp/debezium.tar.gz -C $SERVER_HOME --strip-components 1 &&\
     rm -f /tmp/debezium.tar.gz
 
-# Mounting Oracle
-COPY debezium-connector-oracle-2.7.4.Final.jar /debezium/lib/
+# Mount our Kafka jar to Debezium
+COPY debezium-server-kafka-2.7.2.Final.jar /debezium/lib/
 
 ## Oracle specific
 RUN mkdir -p /opt/oracle/instant_client
@@ -47,17 +48,20 @@ COPY instantclient_23_6/ojdbc8.jar /debezium/lib/
 COPY instantclient_23_6/xstreams.jar /debezium/lib/
 ENV LD_LIBRARY_PATH=/opt/oracle/instant_client
 
+# Install AWS IAM
+RUN curl -fSL -o "$SERVER_HOME/lib/aws-msk-iam-auth-all.jar" https://github.com/aws/aws-msk-iam-auth/releases/download/v$AWS_MSK_IAM_VERSION/aws-msk-iam-auth-$AWS_MSK_IAM_VERSION-all.jar
+
 #
 # Allow random UID to use Debezium Server
 #
 RUN chmod -R g+w,o+w $SERVER_HOME
 
 # Stage 2: Final image
-FROM registry.access.redhat.com/ubi8/openjdk-11
+FROM --platform=linux/amd64 registry.access.redhat.com/ubi8/openjdk-11
 
 LABEL maintainer="Debezium Community"
 
-ENV DEBEZIUM_VERSION=2.7.4.Final \
+ENV DEBEZIUM_VERSION=2.7.2.Final \
     SERVER_HOME=/debezium \
     MAVEN_REPO_CENTRAL="https://repo1.maven.org/maven2"
 
