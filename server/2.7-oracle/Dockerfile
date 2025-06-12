@@ -36,6 +36,8 @@ RUN echo "$SERVER_MD5 /tmp/debezium.tar.gz" | md5sum -c - &&\
     tar xzf /tmp/debezium.tar.gz -C $SERVER_HOME --strip-components 1 &&\
     rm -f /tmp/debezium.tar.gz
 
+# Mounting Oracle
+COPY debezium-connector-oracle-2.7.4.Final.jar /debezium/lib/
 
 ## Oracle specific
 RUN mkdir -p /opt/oracle/instant_client
