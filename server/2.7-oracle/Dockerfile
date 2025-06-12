@@ -38,6 +38,7 @@ RUN echo "$SERVER_MD5 /tmp/debezium.tar.gz" | md5sum -c - &&\
     rm -f /tmp/debezium.tar.gz
 
 # Mount our Kafka jar to Debezium
+COPY debezium-connector-oracle-2.7.4.Final.jar /debezium/lib/
 COPY debezium-server-kafka-2.7.4.Final.jar /debezium/lib/
 
 ## Oracle specific
