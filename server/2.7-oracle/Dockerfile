@@ -40,6 +40,14 @@ RUN echo "$SERVER_MD5 /tmp/debezium.tar.gz" | md5sum -c - &&\
 # Mount our Kafka jar to Debezium
 COPY debezium-server-kafka-2.7.2.Final.jar /debezium/lib/
 
+## Oracle specific
+RUN mkdir -p /opt/oracle/instant_client
+COPY instantclient_23_6/* /opt/oracle/instant_client
+
+COPY instantclient_23_6/ojdbc8.jar /debezium/lib/
+COPY instantclient_23_6/xstreams.jar /debezium/lib/
+ENV LD_LIBRARY_PATH=/opt/oracle/instant_client
+
 # Install AWS IAM
 RUN curl -fSL -o "$SERVER_HOME/lib/aws-msk-iam-auth-all.jar" https://github.com/aws/aws-msk-iam-auth/releases/download/v$AWS_MSK_IAM_VERSION/aws-msk-iam-auth-$AWS_MSK_IAM_VERSION-all.jar
 
