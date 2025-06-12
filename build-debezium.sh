@@ -6,10 +6,6 @@ if [ -z "${DEBEZIUM_DOCKER_REGISTRY_PRIMARY_NAME}" ]; then
   DEBEZIUM_DOCKER_REGISTRY_PRIMARY_NAME=quay.io/debezium
 fi;
 
-if [ -z "${DEBEZIUM_DOCKER_REGISTRY_SECONDARY_NAME}" ]; then
-  DEBEZIUM_DOCKER_REGISTRY_SECONDARY_NAME=debezium
-fi;
-
 #
 # Parameter 1: image name
 # Parameter 2: path to component (if different)
@@ -35,7 +31,7 @@ build_docker_image () {
     echo "** Validating  ${DEBEZIUM_DOCKER_REGISTRY_PRIMARY_NAME}/${IMAGE_NAME}"
     echo "****************************************************************"
     echo ""
-    docker run --rm -i hadolint/hadolint:latest < "${IMAGE_PATH}"
+    docker run --rm -i mirror.gcr.io/hadolint/hadolint:latest < "${IMAGE_PATH}"
 
     echo "****************************************************************"
     echo "** Building    ${DEBEZIUM_DOCKER_REGISTRY_PRIMARY_NAME}/${IMAGE_NAME}:${IMAGE_TAG}"
@@ -48,7 +44,7 @@ build_docker_image () {
         echo "** Stream Tag  ${DEBEZIUM_DOCKER_REGISTRY_PRIMARY_NAME}/${IMAGE_NAME}:${IMAGE_TAG}       "
         echo "****************************************************************"
         docker tag "${DEBEZIUM_DOCKER_REGISTRY_PRIMARY_NAME}/${IMAGE_NAME}:latest" "${DEBEZIUM_DOCKER_REGISTRY_PRIMARY_NAME}/${IMAGE_NAME}:${IMAGE_TAG}"
-        if [ "$PUSH_IMAGES" == "true" ]; then
+        if [[ "$PUSH_IMAGES" == "true" || "$DRY_RUN" == "false" ]]; then
             echo "Pushing the stream image into the registry"
             docker push "${DEBEZIUM_DOCKER_REGISTRY_PRIMARY_NAME}/${IMAGE_NAME}:${IMAGE_TAG}"
 	    if [ -n "${DEBEZIUM_DOCKER_REGISTRY_SECONDARY_NAME}" ]; then
@@ -71,7 +67,7 @@ build_docker_image () {
         echo "** Release Tag ${DEBEZIUM_DOCKER_REGISTRY_PRIMARY_NAME}/${IMAGE_NAME}:${RELEASE_TAG}       "
         echo "****************************************************************"
         docker tag "${DEBEZIUM_DOCKER_REGISTRY_PRIMARY_NAME}/${IMAGE_NAME}:latest" "${DEBEZIUM_DOCKER_REGISTRY_PRIMARY_NAME}/${IMAGE_NAME}:${RELEASE_TAG}"
-        if [ "$PUSH_IMAGES" == "true" ]; then
+        if [[ "$PUSH_IMAGES" == "true" || "$DRY_RUN" == "false" ]]; then
             echo "Pushing the stream image into the registry"
             docker push "${DEBEZIUM_DOCKER_REGISTRY_PRIMARY_NAME}/${IMAGE_NAME}:${RELEASE_TAG}"
 	    if [ -n "${DEBEZIUM_DOCKER_REGISTRY_SECONDARY_NAME}" ]; then
@@ -102,13 +98,16 @@ build_docker_image connect
 build_docker_image server
 build_docker_image example-mysql examples/mysql
 build_docker_image example-mysql-gtids examples/mysql-gtids
+build_docker_image example-mariadb examples/mariadb
 build_docker_image example-postgres examples/postgres
 build_docker_image example-mongodb examples/mongodb
 build_docker_image example-mysql-master examples/mysql-replication/master
 build_docker_image example-mysql-replica examples/mysql-replication/replica
 if [[ "$SKIP_UI" != "true" ]]; then
-    build_docker_image debezium-ui ui
+    build_docker_image platform-conductor
+    build_docker_image platform-stage
 fi
+build_docker_image operator
 
 echo ""
 echo "*************************************"

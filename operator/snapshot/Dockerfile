@@ -77,18 +77,18 @@
 #   accessed directly. (example: "foo.example.com,bar.example.com")
 #
 ###
-FROM registry.access.redhat.com/ubi8/openjdk-17:1.14
+FROM registry.access.redhat.com/ubi8/openjdk-21
 LABEL maintainer="Debezium Community"
 
 #
 # Set the version, home directory
 #
-ARG DEBEZIUM_VERSION=2.7.0-SNAPSHOT
+ARG DEBEZIUM_VERSION=3.2.0-SNAPSHOT
 
 ENV LANGUAGE='en_US:en'
 ENV DEBEZIUM_VERSION=$DEBEZIUM_VERSION \
     OPERATOR_HOME=/operator \
-    MAVEN_OSS_SNAPSHOT="https://oss.sonatype.org/content/repositories/snapshots" 
+    MAVEN_OSS_SNAPSHOT="https://s01.oss.sonatype.org/content/repositories/snapshots" 
 
 USER root
 
