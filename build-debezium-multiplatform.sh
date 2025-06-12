@@ -6,10 +6,6 @@ if [ -z "${DEBEZIUM_DOCKER_REGISTRY_PRIMARY_NAME}" ]; then
   DEBEZIUM_DOCKER_REGISTRY_PRIMARY_NAME=quay.io/debezium
 fi;
 
-if [ -z "${DEBEZIUM_DOCKER_REGISTRY_SECONDARY_NAME}" ]; then
-  DEBEZIUM_DOCKER_REGISTRY_SECONDARY_NAME=debezium
-fi;
-
 #
 # Parameter 1: image name
 # Parameter 2: path to component (if different)
@@ -50,7 +46,7 @@ build_docker_image () {
     echo "** Validating  ${DEBEZIUM_DOCKER_REGISTRY_PRIMARY_NAME}/${IMAGE_NAME}"
     echo "****************************************************************"
     echo ""
-    docker run --rm -i hadolint/hadolint:latest < "${IMAGE_PATH}"
+    docker run --rm -i mirror.gcr.io/hadolint/hadolint:latest < "${IMAGE_PATH}"
 
     echo "****************************************************************"
     echo "** Building    ${DEBEZIUM_DOCKER_REGISTRY_PRIMARY_NAME}/${IMAGE_NAME}:${IMAGE_TAG}"
@@ -81,8 +77,22 @@ build_docker_image () {
 
     echo "Build Image with Tags " "${TAGS[@]}" " and platform ${PLATFORM}"
 
+    PUSH_FLAG="--push"
+    if [[ "$DRY_RUN" == "true" ]]; then
+      PUSH_FLAG=""
+    fi
+
+    echo "****************************************************************"
+    echo "Running docker buildx build $PUSH_FLAG --platform \"${PLATFORM}\" \
+                        --progress=plain \
+                        --build-arg DEBEZIUM_DOCKER_REGISTRY_PRIMARY_NAME=\"$DEBEZIUM_DOCKER_REGISTRY_PRIMARY_NAME\" \
+                        --label build-at=$(date +%s) \
+                          ${TAGS[*]} \
+                          \"${IMAGE_PATH}\""
+    echo "****************************************************************"
+
     # shellcheck disable=SC2068
-    docker buildx build --push --platform "${PLATFORM}" \
+    docker buildx build $PUSH_FLAG --platform "${PLATFORM}" \
       --progress=plain \
       --build-arg DEBEZIUM_DOCKER_REGISTRY_PRIMARY_NAME="$DEBEZIUM_DOCKER_REGISTRY_PRIMARY_NAME" \
       --label "build-at=$(date +%s)" \
@@ -130,7 +140,8 @@ build_docker_image connect
 build_docker_image server
 build_docker_image operator
 if [[ "$SKIP_UI" != "true" ]]; then
-    build_docker_image debezium-ui ui
+    build_docker_image platform-conductor
+    build_docker_image platform-stage
 fi
 build_docker_image example-mysql examples/mysql
 build_docker_image example-mysql-gtids examples/mysql-gtids

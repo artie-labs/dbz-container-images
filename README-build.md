@@ -40,7 +40,7 @@ that builds single platform images without buildx.
 You can specify two environment variables that control where the images are pushed to after build:
 
 * `DEBEZIUM_DOCKER_REGISTRY_PRIMARY_NAME`: name of the first registry to use. This defaults to `quay.io/debezium`, so that the images are pushed to the Quay.io Registry.
-* `DEBEZIUM_DOCKER_REGISTRY_SECONDARY_NAME`: name to use for the second registry. By default it's set to `debezium`, and the images are pushed to Docker Hub.
+* `DEBEZIUM_DOCKER_REGISTRY_SECONDARY_NAME`: name to use for the second registry.
 
 To run the build locally you can modify these variables.
 
@@ -74,7 +74,7 @@ appropriate runner. Note that the scripts expects the registry listening on http
 
 ## Building single images
 
-You can build a single images running either `./build-mongo-multiplatform.sh`  or `./build-postgres-multiplatform.sh`
+You can build a single image running ./build-postgres-multiplatform.sh`.
 
 Both of this scripts works with the env variables described above and expect two arguments:
 
@@ -85,7 +85,6 @@ Examples:
 
 ```bash
     ./build-postgres-multiarch.sh 14-alpine "linux/amd64,linux/arm64"
-    ./build-mongo-multiarch.sh 3.2 "linux/amd64"
 ```
 
 For building a single Debezium version for multiple platforms, you can run

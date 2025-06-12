@@ -6,11 +6,11 @@ LABEL maintainer="Debezium Community"
 #
 # Set the version, home directory, and MD5 hash.
 #
-ENV DEBEZIUM_VERSION=3.0.0.Beta1 \
+ENV DEBEZIUM_VERSION=3.0.8.Final \
     SERVER_HOME=/debezium \
     MAVEN_REPO_CENTRAL="https://repo1.maven.org/maven2"
 ENV SERVER_URL_PATH=io/debezium/debezium-server-dist/$DEBEZIUM_VERSION/debezium-server-dist-$DEBEZIUM_VERSION.tar.gz \
-    SERVER_MD5=9de5519bb050829c4dd3287495996bb0
+    SERVER_MD5=8bbe45300cebec09364a6a1986c1134f
 
 #
 # Create a directory for Debezium Server
@@ -28,7 +28,7 @@ RUN chown -R jboss $SERVER_HOME && \
     chgrp -R jboss $SERVER_HOME
 USER jboss
 
-RUN mkdir $SERVER_HOME/conf && \
+RUN mkdir $SERVER_HOME/config && \
     mkdir $SERVER_HOME/data
 
 #
@@ -53,7 +53,7 @@ FROM registry.access.redhat.com/ubi8/openjdk-21
 
 LABEL maintainer="Debezium Community"
 
-ENV DEBEZIUM_VERSION=3.0.0.Beta1 \
+ENV DEBEZIUM_VERSION=3.0.8.Final \
     SERVER_HOME=/debezium \
     MAVEN_REPO_CENTRAL="https://repo1.maven.org/maven2"
 
@@ -71,6 +71,6 @@ WORKDIR $SERVER_HOME
 # Expose the ports and set up volumes for the data, transaction log, and configuration
 #
 EXPOSE 8080
-VOLUME ["/debezium/conf","/debezium/data"]
+VOLUME ["/debezium/config","/debezium/data"]
 
 CMD ["/debezium/run.sh"]

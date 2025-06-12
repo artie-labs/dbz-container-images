@@ -1,6 +1,9 @@
 name: Build Container Images as Anonymous
 on:
   pull_request:
+    paths-ignore:
+      - 'oracle/**'
+      - 'build-oracle.sh'
 
 jobs:
   build:
@@ -9,7 +12,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        component: [ 'mongo', 'postgres', 'debezium', 'tool' ]
+        component: ['postgres', 'debezium', 'tool']
     runs-on: ubuntu-latest
     env:
       DEBEZIUM_DOCKER_REGISTRY_PRIMARY_NAME: localhost:5500/debeziumquay
@@ -33,6 +36,7 @@ jobs:
         if: matrix.component != 'tool'
         env:
           SKIP_UI: true
+          PLATFORM_STAGE_PLATFORM: linux/amd64
         run: ./build-all-multiplatform.sh ${{ matrix.component }}
       - name: Build Tool Images
         if: matrix.component == 'tool'

@@ -1,8 +1,8 @@
-FROM postgres:16-bullseye AS build
+FROM mirror.gcr.io/library/postgres:16-bookworm AS build
 
 ARG USE_POSTGIS=true
-ENV PLUGIN_VERSION=v2.7.2.Final
-ENV PROTOC_VERSION=1.4
+ENV PLUGIN_VERSION=v3.2.0.Beta2
+ENV PROTOC_VERSION=1.5
 
 # Install the packages which will be required to get everything to compile
 RUN apt-get update \
@@ -11,8 +11,8 @@ RUN apt-get update \
         build-essential \
         pkg-config \
         git \
-        clang-11 \
-        llvm-11 \
+        clang-14 \
+        llvm-14 \
         postgresql-server-dev-$PG_MAJOR \
     && add-apt-repository "deb http://ftp.debian.org/debian testing main contrib" \
     && apt-get update && apt-get install -f -y --no-install-recommends \
@@ -27,7 +27,7 @@ RUN git clone https://github.com/debezium/postgres-decoderbufs -b $PLUGIN_VERSIO
     && rm -rf postgres-decoderbufs
 
 
-FROM postgres:16-bullseye
+FROM mirror.gcr.io/library/postgres:16-bookworm
 
 LABEL maintainer="Debezium Community"
 

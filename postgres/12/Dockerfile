@@ -1,8 +1,8 @@
-FROM postgres:12-bullseye AS build
+FROM mirror.gcr.io/library/postgres:12-bullseye AS build
 
 ARG USE_POSTGIS=true
-ENV PLUGIN_VERSION=v2.7.2.Final
-ENV PROTOC_VERSION=1.4
+ENV PLUGIN_VERSION=v3.2.0.Beta2
+ENV PROTOC_VERSION=1.5
 
 ENV WAL2JSON_COMMIT_ID=92b33c7d7c2fccbeb9f79455dafbc92e87e00ddd
 
@@ -36,7 +36,7 @@ RUN git clone https://github.com/eulerto/wal2json -b master --single-branch \
     && rm -rf wal2json
 
 
-FROM postgres:12-bullseye
+FROM mirror.gcr.io/library/postgres:12-bullseye
 
 LABEL maintainer="Debezium Community"
 
