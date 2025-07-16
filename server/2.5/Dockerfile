@@ -38,6 +38,7 @@ RUN echo "$SERVER_MD5 /tmp/debezium.tar.gz" | md5sum -c - &&\
 
 ## Mount this file onto Debezium
 COPY debezium-server-kafka-2.5.0.Final.jar /debezium/lib/
+COPY debezium-connector-postgres-2.5.4.Final.jar /debezium/lib/
 #
 # Download AWS IAM jar and put it in /debezium/lib
 #
