@@ -1,16 +1,17 @@
-FROM --platform=linux/amd64 registry.access.redhat.com/ubi8/openjdk-11
+# Stage 1: Build stage
+FROM --platform=linux/amd64 registry.access.redhat.com/ubi8/openjdk-11 AS builder
 
 LABEL maintainer="Debezium Community"
 
 #
 # Set the version, home directory, and MD5 hash.
 #
-ENV DEBEZIUM_VERSION=2.5.4.Final \
+ENV DEBEZIUM_VERSION=2.6.1.Final \
     SERVER_HOME=/debezium \
     MAVEN_REPO_CENTRAL="https://repo1.maven.org/maven2" \
     AWS_MSK_IAM_VERSION=1.1.6
 ENV SERVER_URL_PATH=io/debezium/debezium-server-dist/$DEBEZIUM_VERSION/debezium-server-dist-$DEBEZIUM_VERSION.tar.gz \
-    SERVER_MD5=d75ba8c21e1d14f320b79d92107278b0
+    SERVER_MD5=9578c40f0bf13bb3781df4d469ea80bc
 
 #
 # Create a directory for Debezium Server
@@ -36,9 +37,16 @@ RUN echo "$SERVER_MD5 /tmp/debezium.tar.gz" | md5sum -c - &&\
     tar xzf /tmp/debezium.tar.gz -C $SERVER_HOME --strip-components 1 &&\
     rm -f /tmp/debezium.tar.gz
 
-## Mount this file onto Debezium
-COPY debezium-server-kafka-2.5.4.Final.jar /debezium/lib/
-COPY debezium-connector-postgres-2.5.4.Final.jar /debezium/lib/
+# Mount this file onto Debezium
+COPY debezium-server-kafka-2.6.0.Final.jar /debezium/lib/
+
+RUN mkdir -p /opt/oracle/instant_client
+COPY instantclient_23_6/* /opt/oracle/instant_client
+
+COPY instantclient_23_6/ojdbc8.jar /debezium/lib/
+COPY instantclient_23_6/xstreams.jar /debezium/lib/
+ENV LD_LIBRARY_PATH=/opt/oracle/instant_client
+
 #
 # Download AWS IAM jar and put it in /debezium/lib
 #
@@ -48,6 +56,20 @@ RUN curl -fSL -o "$SERVER_HOME/lib/aws-msk-iam-auth-all.jar" https://github.com/
 # Allow random UID to use Debezium Server
 #
 RUN chmod -R g+w,o+w $SERVER_HOME
+
+# Stage 2: Final image
+FROM --platform=linux/amd64 registry.access.redhat.com/ubi8/openjdk-11
+
+LABEL maintainer="Debezium Community"
+
+ENV DEBEZIUM_VERSION=2.6.0.Alpha1 \
+    SERVER_HOME=/debezium \
+    MAVEN_REPO_CENTRAL="https://repo1.maven.org/maven2"
+
+USER root
+RUN microdnf clean all
+
+COPY --from=builder $SERVER_HOME $SERVER_HOME
 
 # Set the working directory to the Debezium Server home directory
 WORKDIR $SERVER_HOME

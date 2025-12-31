@@ -37,16 +37,20 @@ RUN echo "$SERVER_MD5 /tmp/debezium.tar.gz" | md5sum -c - &&\
     rm -f /tmp/debezium.tar.gz
 
 ## Mount this file onto Debezium
-COPY debezium-server-kafka-2.5.4.Final.jar /debezium/lib/
-COPY debezium-connector-postgres-2.5.4.Final.jar /debezium/lib/
-#
+COPY debezium-server-kafka-2.5.0.Final.jar /debezium/lib/
+
+## Oracle specific
+RUN mkdir -p /opt/oracle/instant_client
+COPY instantclient_23_6/* /opt/oracle/instant_client
+
+COPY instantclient_23_6/ojdbc8.jar /debezium/lib/
+COPY instantclient_23_6/xstreams.jar /debezium/lib/
+ENV LD_LIBRARY_PATH=/opt/oracle/instant_client
+
 # Download AWS IAM jar and put it in /debezium/lib
-#
 RUN curl -fSL -o "$SERVER_HOME/lib/aws-msk-iam-auth-all.jar" https://github.com/aws/aws-msk-iam-auth/releases/download/v$AWS_MSK_IAM_VERSION/aws-msk-iam-auth-$AWS_MSK_IAM_VERSION-all.jar
 
-#
 # Allow random UID to use Debezium Server
-#
 RUN chmod -R g+w,o+w $SERVER_HOME
 
 # Set the working directory to the Debezium Server home directory
