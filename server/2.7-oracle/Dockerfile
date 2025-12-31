@@ -41,6 +41,9 @@ RUN echo "$SERVER_MD5 /tmp/debezium.tar.gz" | md5sum -c - &&\
 COPY debezium-connector-oracle-2.7.4.Final.jar /debezium/lib/
 COPY debezium-server-kafka-2.7.4.Final.jar /debezium/lib/
 
+# Copy the SQL Server jar
+COPY debezium-connector-sqlserver-2.7.4.Final.jar /debezium/lib/
+
 ## Oracle specific
 RUN mkdir -p /opt/oracle/instant_client
 COPY instantclient_23_6/* /opt/oracle/instant_client
